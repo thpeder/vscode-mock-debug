@@ -72,9 +72,9 @@ export class MockDebugSession extends LoggingDebugSession {
 		});
 		this._runtime.on('output', (text, filePath, line, column) => {
 			const e: DebugProtocol.OutputEvent = new OutputEvent(`${text}\n`);
-			e.body.source = this.createSource(filePath);
-			e.body.line = this.convertDebuggerLineToClient(line);
-			e.body.column = this.convertDebuggerColumnToClient(column);
+			// e.body.source = this.createSource(filePath);
+			// e.body.line = this.convertDebuggerLineToClient(line);
+			// e.body.column = this.convertDebuggerColumnToClient(column);
 			this.sendEvent(e);
 		});
 		this._runtime.on('end', () => {
@@ -105,6 +105,9 @@ export class MockDebugSession extends LoggingDebugSession {
 		// since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
 		// we request them early by sending an 'initializeRequest' to the frontend.
 		// The frontend will end the configuration sequence by calling 'configurationDone' request.
+		let outputEvent = new OutputEvent("Output message before the Launch event\n");
+		this.sendEvent(outputEvent);
+
 		this.sendEvent(new InitializedEvent());
 	}
 
@@ -130,6 +133,8 @@ export class MockDebugSession extends LoggingDebugSession {
 		// start the program in the runtime
 		this._runtime.start(args.program, !!args.stopOnEntry);
 
+		response.success = false;
+		response.message = "For some reason it failes, but the output should still be there.";
 		this.sendResponse(response);
 	}
 
